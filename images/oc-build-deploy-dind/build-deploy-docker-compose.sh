@@ -122,7 +122,7 @@ if [[ ( "$TYPE" == "pullrequest"  ||  "$TYPE" == "branch" ) && ! $THIS_IS_TUG ==
     BUILD_ARGS+=(--build-arg LAGOON_PR_HEAD_SHA="${PR_HEAD_SHA}")
     BUILD_ARGS+=(--build-arg LAGOON_PR_BASE_BRANCH="${PR_BASE_BRANCH}")
     BUILD_ARGS+=(--build-arg LAGOON_PR_BASE_SHA="${PR_BASE_SHA}")
-    BUILD_ARGS+=(--build-arg LAGOON_PR_TITLE="${PR_TITLE}")
+    BUILD_ARGS+=(--build-arg LAGOON_PR_TITLE="$(printf "%q" ${PR_TITLE})")
   fi
 
   for IMAGE_NAME in "${IMAGES[@]}"
