@@ -41,7 +41,7 @@
     git_pr_commit_hash: "{{ pr_commit_hash }}"
     git_pr_number: "1"
     git_repo_ssh_url: "{{ lookup('env','WEBHOOK_REPO_PREFIX') }}{{ git_repo_name }}"
-    git_pr_title: "PR Title with a double \" quote"
+    git_pr_title: "PR Title"
   tasks:
   - include: ../../tasks/webhook-github/pullrequest-opened.yaml
 
@@ -62,6 +62,46 @@
     expected_pr_head_branch: "pullrequest_pr"
     expected_pr_head_sha: "{{ pr_commit_hash }}"
     expected_pr_title: "PR Title"
+
+
+- name: "{{ testname }} - save pr branch commit"
+  hosts: localhost
+  serial: 1
+  tasks:
+  - set_fact:
+      pr_commit_hash: "{{ current_head }}"
+
+- name: "{{ testname }} - webhook github with quotes"
+  hosts: localhost
+  serial: 3
+  vars:
+    git_base_branch: "pullrequest_base"
+    git_base_commit_hash: "{{ base_commit_hash }}"
+    git_pr_branch: "pullrequest_pr"
+    git_pr_commit_hash: "{{ pr_commit_hash }}"
+    git_pr_number: "3"
+    git_repo_ssh_url: "{{ lookup('env','WEBHOOK_REPO_PREFIX') }}{{ git_repo_name }}"
+    git_pr_title: "This is a \" 'test'"
+  tasks:
+  - include: ../../tasks/webhook-github/pullrequest-quote.yaml
+
+
+- include: ../../checks/check-branch-sha.yaml
+  vars:
+    expected_head: "{{ pr_commit_hash }}"
+    expected_branch: "pr-3"
+    project: "{{ project }}"
+    url: "{{ check_url }}"
+
+- include: ../../checks/check-pullrequest.yaml
+  vars:
+    url: "{{ check_url }}"
+    expected_build_type: "pullrequest"
+    expected_pr_base_branch: "pullrequest_base"
+    expected_pr_base_sha: "{{ base_commit_hash }}"
+    expected_pr_head_branch: "pullrequest_pr"
+    expected_pr_head_sha: "{{ pr_commit_hash }}"
+    expected_pr_title: "This is a \" 'test'"
 
 - name: "{{ testname }} - git commit a second time into pull request branch"
   hosts: localhost
